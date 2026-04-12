@@ -1,5 +1,7 @@
 # 🧬 PhyloGenAI — Genomic Intelligence Unit
 
+https://phylogen-ai-v2.vercel.app/
+
 > A fully client-side, AI-powered phylogenetic tree generator and evolutionary analysis tool. Upload raw biological sequences (FASTA), align them, compute genetic distances, build phylogenetic trees, and get deep evolutionary insights powered by AI.
 
 ---
