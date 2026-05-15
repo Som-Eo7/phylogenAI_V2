@@ -275,7 +275,7 @@ MVHLTDAEKAAVSCLWGKVNSDEVGGEALGRLLVVYPWTQRFFDSFGNLSSASAIMGNPK
 >Rat
 MVHLTDAEKAAVSCLWGKVNSDEVGGEALGRLLVVYPWTQRFFDSFGNLSSASAIMGNPQ`;
 
-// ─── AI Analysis ─────────────────────────────────────────────────────────────
+// ─── AI Analysis (Gemini) ────────────────────────────────────────────────────
 async function analyzeWithAI(newick, labels) {
   const prompt = `You are an evolutionary biologist. Analyze this phylogenetic tree.
 Newick: ${newick}
@@ -284,17 +284,20 @@ Taxa: ${labels.join(", ")}
 Respond ONLY with valid JSON (no markdown, no backticks, no explanation outside JSON):
 {"summary":"2-3 sentence evolutionary summary","clades":[{"name":"clade name","members":["sp1","sp2"],"interpretation":"biological meaning"}],"keyFindings":["finding1","finding2","finding3"]}`;
 
-  const response = await fetch("https://api.anthropic.com/v1/messages", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      model: "claude-sonnet-4-20250514",
-      max_tokens: 1000,
-      messages: [{ role: "user", content: prompt }],
-    }),
-  });
+  const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+  const response = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: prompt }] }],
+      }),
+    }
+  );
   const data = await response.json();
-  const text = (data.content || []).map(b => b.text || "").join("").replace(/```json|```/g, "").trim();
+  const text = (data.candidates?.[0]?.content?.parts?.[0]?.text || "")
+    .replace(/```json|```/g, "").trim();
   try { return JSON.parse(text); } catch { return { summary: text, clades: [], keyFindings: [] }; }
 }
 
